@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './StripeLikePage.css';
 import visaImage from './assets/visa.png';
 import mastercardImage from './assets/mastercard.png';
@@ -75,18 +75,18 @@ export default function StripeLikePage() {
   const [activePaymentMethod, setActivePaymentMethod] = useState('mpesa');
   const [currentRotatingIcon, setCurrentRotatingIcon] = useState(0);
   
-  const rotatingIcons = [amazonImage, discoverImage, ebayImage];
+  const rotatingIcons = useCallback(() => [amazonImage, discoverImage, ebayImage], []);
   const exchangeRate = 130; // 1 USD = 130 KES
 
   // Auto-rotate card brands
   useEffect(() => {
     if (activePaymentMethod === 'card') {
       const interval = setInterval(() => {
-        setCurrentRotatingIcon((prev) => (prev + 1) % rotatingIcons.length);
+        setCurrentRotatingIcon((prev) => (prev + 1) % rotatingIcons().length);
       }, 2000);
       return () => clearInterval(interval);
     }
-  }, [activePaymentMethod]);
+  }, [activePaymentMethod, rotatingIcons]);
 
   // Auto-redirect after 10 seconds
   useEffect(() => {
@@ -192,19 +192,19 @@ export default function StripeLikePage() {
     }
   };
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setPaymentStatus(null);
     setCountdown(10);
-  };
+  }, []);
 
-  const retryPayment = () => {
+  const retryPayment = useCallback(() => {
     setPaymentStatus(null);
     setCountdown(10);
-  };
+  }, []);
 
-  const handlePaymentMethodChange = (method) => {
+  const handlePaymentMethodChange = useCallback((method) => {
     setActivePaymentMethod(method);
-  };
+  }, []);
 
   return (
     <div className="stripe-container">
@@ -315,7 +315,7 @@ export default function StripeLikePage() {
                       <img src={mastercardImage} alt="Mastercard" className="card-brand-icon static" />
                       <img src={amexImage} alt="American Express" className="card-brand-icon static" />
                       <img 
-                        src={rotatingIcons[currentRotatingIcon]} 
+                        src={rotatingIcons()[currentRotatingIcon]} 
                         alt="" 
                         className="card-brand-icon rotating"
                         key={currentRotatingIcon}
